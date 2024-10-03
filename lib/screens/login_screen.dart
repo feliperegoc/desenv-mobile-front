@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../services/auth_service.dart';
 import 'cadastro_screen.dart';
 import 'recuperar_senha_screen.dart';
+import 'home_screen.dart'; // Nova importação
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -24,20 +25,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        // Exibir tela de "login efetuado com sucesso"
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Sucesso'),
-            content:
-                Text('Login efetuado com sucesso. Bem-vindo, ${data['nome']}!'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
+        // Navegar para a tela inicial após o login bem-sucedido
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else if (response.statusCode == 404) {
         // Exibir tela de "Email não cadastrado"
@@ -118,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: <Widget>[
               const SizedBox(height: 50),
               Image.asset(
-                'assets/logo_unifor.png', // Certifique-se de adicionar o logo em seus assets
+                'assets/logo_unifor.png',
                 height: 120,
               ),
               const SizedBox(height: 20),
