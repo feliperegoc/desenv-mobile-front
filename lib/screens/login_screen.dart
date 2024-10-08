@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import 'cadastro_screen.dart';
 import 'recuperar_senha_screen.dart';
-import 'home_screen.dart'; // Nova importação
+import 'home_screen.dart';
+import '../auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -24,74 +24,38 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        // Navegar para a tela inicial após o login bem-sucedido
+        // Login bem-sucedido
+        Provider.of<AuthProvider>(context, listen: false).login(email);
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else if (response.statusCode == 404) {
-        // Exibir tela de "Email não cadastrado"
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Erro'),
-            content: const Text('Email não cadastrado'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        _showErrorDialog('Email não cadastrado');
       } else if (response.statusCode == 401) {
-        // Exibir tela de "Senha incorreta"
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Erro'),
-            content: const Text('Senha incorreta. Tente novamente'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        _showErrorDialog('Senha incorreta. Tente novamente');
       } else {
-        // Exibir tela de erro genérico
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Erro'),
-            content: const Text('Erro ao fazer login'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+        _showErrorDialog('Erro ao fazer login');
       }
     } catch (e) {
-      // Exibir tela de erro de conexão
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Erro'),
-          content: const Text(
-              'Erro de conexão. Verifique sua conexão com a internet e tente novamente.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+      _showErrorDialog(
+          'Erro de conexão. Verifique sua conexão com a internet e tente novamente.');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Erro'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
