@@ -52,9 +52,15 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: _toggleSidebar,
           color: Colors.white,
         ),
-        title: Image.asset(
-          'assets/logo_unifor.png',
-          height: 40,
+        title: ColorFiltered(
+          colorFilter: const ColorFilter.mode(
+            Colors.white,
+            BlendMode.srcIn,
+          ),
+          child: Image.asset(
+            'assets/logo_unifor.png',
+            height: 40,
+          ),
         ),
         centerTitle: true,
       ),
