@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../auth_provider.dart';
 import 'login_screen.dart';
+import 'biblioteca.dart';
+import 'chamada.dart';
+import 'turmas.dart';
+import 'perfil.dart';
+import '../utils/string_extension.dart'; // Importe a extensão
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -110,13 +115,41 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
-                      _buildSidebarButton('Home', Icons.home),
-                      _buildSidebarButton('Biblioteca', Icons.book),
-                      _buildSidebarButton('Chamada', Icons.checklist_rounded),
-                      _buildSidebarButton('Turmas', Icons.people_outline),
-                      _buildSidebarButton('Perfil', Icons.person),
+                      _buildSidebarButton('Home', Icons.home, () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const HomeScreen()),
+                        );
+                      }),
+                      _buildSidebarButton('Biblioteca', Icons.book, () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const BibliotecaScreen()),
+                        );
+                      }),
+                      _buildSidebarButton('Chamada', Icons.checklist_rounded,
+                          () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const ChamadaScreen()),
+                        );
+                      }),
+                      _buildSidebarButton('Turmas', Icons.people_outline, () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const TurmasScreen()),
+                        );
+                      }),
+                      _buildSidebarButton('Perfil', Icons.person, () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                              builder: (context) => const PerfilScreen()),
+                        );
+                      }),
                       Spacer(),
-                      _buildSidebarButton('Sair', Icons.exit_to_app),
+                      _buildSidebarButton('Sair', Icons.exit_to_app, () {
+                        _logout(context);
+                      }),
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -128,26 +161,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSidebarButton(String label, IconData icon) {
+  Widget _buildSidebarButton(String label, IconData icon, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
         label,
         style: TextStyle(color: Colors.white),
       ),
-      onTap: () {
-        if (label == 'Sair') {
-          _logout(context);
-        } else {
-          print('Clicou em $label');
-        }
-      },
+      onTap: onTap,
     );
-  }
-}
-
-extension StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
