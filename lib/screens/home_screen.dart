@@ -32,6 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _closeSidebar() {
+    setState(() {
+      _isSidebarOpen = false;
+    });
+  }
+
   void _logout(BuildContext context) {
     Provider.of<AuthProvider>(context, listen: false).logout();
     Navigator.of(context).pushReplacement(
@@ -42,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final firstName = authProvider.getFirstName() ?? 'Usuário';
+    final firstName = authProvider.getFirstName()?.capitalize() ?? 'Usuário';
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -67,43 +73,53 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-          Column(
-            children: [
-              const SizedBox(height: 40),
-              Text(
-                'Bem-vindo à Biblioteca Yolanda Queiroz',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
+          GestureDetector(
+            onTap: _isSidebarOpen ? _closeSidebar : null,
+            child: AbsorbPointer(
+              absorbing: _isSidebarOpen,
+              child: Column(
+                children: [
+                  const SizedBox(height: 40),
+                  Text(
+                    'Bem-vindo à Biblioteca Yolanda Queiroz',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           if (_isSidebarOpen)
             Positioned(
               top: 0,
               bottom: 0,
               left: 0,
-              child: Container(
-                width: 250,
-                color: Colors.blue[800],
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      'Olá, $firstName',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildSidebarButton('Home', Icons.home),
-                    _buildSidebarButton('Teste', Icons.article),
-                    _buildSidebarButton('Teste 2', Icons.folder),
-                    _buildSidebarButton('Perfil', Icons.person),
-                    Spacer(),
-                    _buildSidebarButton('Sair', Icons.exit_to_app),
-                    const SizedBox(height: 20),
-                  ],
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  width: 250,
+                  color: Colors.blue[800],
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Text(
+                        'Olá, $firstName',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 20),
+                      _buildSidebarButton('Home', Icons.home),
+                      _buildSidebarButton('Biblioteca', Icons.book),
+                      _buildSidebarButton('Chamada', Icons.checklist_rounded),
+                      _buildSidebarButton('Turmas', Icons.people_outline),
+                      _buildSidebarButton('Perfil', Icons.person),
+                      Spacer(),
+                      _buildSidebarButton('Sair', Icons.exit_to_app),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -127,5 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
     );
+  }
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
 }
