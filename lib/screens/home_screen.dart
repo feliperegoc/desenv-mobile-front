@@ -42,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final firstName = authProvider.getFirstName() ?? 'Usuário';
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -64,41 +65,48 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         centerTitle: true,
       ),
-      body: Row(
+      body: Stack(
         children: [
-          if (_isSidebarOpen)
-            Container(
-              width: 250,
-              color: Colors.blue[800],
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  _buildSidebarButton('Home', Icons.home),
-                  _buildSidebarButton('Teste', Icons.article),
-                  _buildSidebarButton('Teste 2', Icons.folder),
-                  _buildSidebarButton('Perfil', Icons.person),
-                  _buildSidebarButton('Sair', Icons.exit_to_app),
-                ],
+          Column(
+            children: [
+              const SizedBox(height: 40),
+              Text(
+                'Bem-vindo à Biblioteca Yolanda Queiroz',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-            ),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Bem-vindo à Biblioteca Yolanda Queiroz',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Usuário logado: ${authProvider.userEmail}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
+          if (_isSidebarOpen)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: Container(
+                width: 250,
+                color: Colors.blue[800],
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Text(
+                      'Olá, $firstName',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildSidebarButton('Home', Icons.home),
+                    _buildSidebarButton('Teste', Icons.article),
+                    _buildSidebarButton('Teste 2', Icons.folder),
+                    _buildSidebarButton('Perfil', Icons.person),
+                    Spacer(),
+                    _buildSidebarButton('Sair', Icons.exit_to_app),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

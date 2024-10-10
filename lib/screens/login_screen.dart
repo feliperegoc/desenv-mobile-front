@@ -25,10 +25,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         // Login bem-sucedido
-        Provider.of<AuthProvider>(context, listen: false).login(email);
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+        bool loginSuccess =
+            await Provider.of<AuthProvider>(context, listen: false)
+                .login(email, password);
+        if (loginSuccess) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        } else {
+          _showErrorDialog('Erro ao fazer login');
+        }
       } else if (response.statusCode == 404) {
         _showErrorDialog('Email não cadastrado');
       } else if (response.statusCode == 401) {
