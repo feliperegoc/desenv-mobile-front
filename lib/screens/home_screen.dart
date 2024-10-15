@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
+import 'dart:io'; // Adicionado para detectar a plataforma
 import 'package:http/http.dart' as http;
 import '../auth_provider.dart';
 import 'login_screen.dart';
@@ -21,6 +22,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isSidebarOpen = false;
   List<dynamic> _livros = [];
 
+  // Adicionada a lógica para determinar o IP baseado na plataforma
+  String get baseUrl {
+    String host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+    return 'http://$host:6543';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -37,8 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchLivros() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.23.6:6543/livros'));
+    // final response = await http.get(Uri.parse('http://192.168.23.6:6543/livros')); // Comentado
+    final response = await http.get(Uri.parse('$baseUrl/livros')); // Nova linha
 
     if (response.statusCode == 200) {
       final List<dynamic> livros = json.decode(response.body);
