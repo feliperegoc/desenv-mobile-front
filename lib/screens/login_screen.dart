@@ -16,8 +16,18 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  String? emailError;
+  String? passwordError;
 
   Future<void> login(String email, String password) async {
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        emailError = email.isEmpty ? 'Email deve ser preenchido' : null;
+        passwordError = password.isEmpty ? 'Senha deve ser preenchida' : null;
+      });
+      return;
+    }
+
     try {
       final response = await AuthService.login(email, password);
 
@@ -93,15 +103,17 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 50),
               TextField(
                 controller: emailController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Email',
+                  errorText: emailError,
                 ),
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: passwordController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Senha',
+                  errorText: passwordError,
                 ),
                 obscureText: true,
               ),

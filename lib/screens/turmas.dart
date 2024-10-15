@@ -6,7 +6,7 @@ import 'home_screen.dart';
 import 'biblioteca.dart';
 import 'chamada.dart';
 import 'perfil.dart';
-import '../utils/string_extension.dart'; // Importe a extensão
+import '../utils/string_extension.dart';
 
 class TurmasScreen extends StatefulWidget {
   const TurmasScreen({Key? key}) : super(key: key);

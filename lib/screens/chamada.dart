@@ -6,7 +6,7 @@ import 'home_screen.dart';
 import 'biblioteca.dart';
 import 'turmas.dart';
 import 'perfil.dart';
-import '../utils/string_extension.dart'; // Importe a extensão
+import '../utils/string_extension.dart';
 
 class ChamadaScreen extends StatefulWidget {
   const ChamadaScreen({Key? key}) : super(key: key);

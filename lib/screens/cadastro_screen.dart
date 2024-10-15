@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'login_screen.dart'; // Importar a tela de login
+import 'login_screen.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -13,8 +13,20 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController senhaController = TextEditingController();
+  String? nomeError;
+  String? emailError;
+  String? senhaError;
 
   Future<void> cadastrar(String nome, String email, String senha) async {
+    if (nome.isEmpty || email.isEmpty || senha.isEmpty) {
+      setState(() {
+        nomeError = nome.isEmpty ? 'Nome deve ser preenchido' : null;
+        emailError = email.isEmpty ? 'Email deve ser preenchido' : null;
+        senhaError = senha.isEmpty ? 'Senha deve ser preenchida' : null;
+      });
+      return;
+    }
+
     try {
       final emailCadastrado = await AuthService.verificarEmail(email);
 
@@ -109,20 +121,23 @@ class _CadastroScreenState extends State<CadastroScreen> {
           children: <Widget>[
             TextField(
               controller: nomeController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Nome',
+                errorText: nomeError,
               ),
             ),
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Email',
+                errorText: emailError,
               ),
             ),
             TextField(
               controller: senhaController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Senha',
+                errorText: senhaError,
               ),
               obscureText: true,
             ),

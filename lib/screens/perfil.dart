@@ -6,7 +6,7 @@ import 'home_screen.dart';
 import 'biblioteca.dart';
 import 'chamada.dart';
 import 'turmas.dart';
-import '../utils/string_extension.dart'; // Importe a extensão
+import '../utils/string_extension.dart';
 
 class PerfilScreen extends StatefulWidget {
   const PerfilScreen({Key? key}) : super(key: key);

@@ -1,10 +1,15 @@
+import 'dart:io'; // Adicionado para detectar a plataforma
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AuthService {
-  // static const String baseUrl = 'http://localhost:6543'; // Substitua pela URL da sua API
-  static const String baseUrl =
-      'http://192.168.23.6:6543'; // Substitua pela URL da sua API
+  // static const String baseUrl = 'http://localhost:6543';
+  // static const String baseUrl = 'http://192.168.23.6:6543'; // ip Trabalho
+
+  static String get baseUrl {
+    String host = Platform.isAndroid ? '10.0.2.2' : 'localhost'; // IP padrão para emuladores Android
+    return 'http://$host:6543';
+  }
 
   static Future<http.Response> login(String email, String password) async {
     final response = await http.get(Uri.parse('$baseUrl/api/users'));
@@ -26,8 +31,7 @@ class AuthService {
     }
   }
 
-  static Future<http.Response> cadastrar(
-      String nome, String email, String senha) async {
+  static Future<http.Response> cadastrar(String nome, String email, String senha) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/users'),
       body: jsonEncode({
