@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'dart:io'; // Adicionado para detectar a plataforma
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../auth_provider.dart';
 import 'login_screen.dart';
-import 'biblioteca.dart';
-import 'chamada.dart';
-import 'turmas.dart';
-import 'perfil.dart';
-import '../utils/string_extension.dart';
+import '../widgets/sidebar_widget.dart';
+import '../widgets/navbar_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -21,11 +19,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isSidebarOpen = false;
   List<dynamic> _livros = [];
+  bool _isLoading = true;
+  String _error = '';
 
-  // Adicionada a lógica para determinar o IP baseado na plataforma
   String get baseUrl {
     String host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
-    return 'http://$host:6543';
+    return 'http://$host:3000';
   }
 
   @override
@@ -44,17 +43,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchLivros() async {
-    // final response = await http.get(Uri.parse('http://192.168.23.6:6543/livros')); // Comentado
-    final response = await http.get(Uri.parse('$baseUrl/livros')); // Nova linha
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
 
-    if (response.statusCode == 200) {
-      final List<dynamic> livros = json.decode(response.body);
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/livros'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> livros = json.decode(response.body);
+        setState(() {
+          _livros = livros.take(4).toList();
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Falha ao carregar os livros');
+      }
+    } catch (e) {
       setState(() {
-        _livros = livros.reversed.take(3).toList();
+        _error = 'Erro ao buscar livros: $e';
+        _isLoading = false;
       });
-    } else {
-      // Tratar erro de requisição
-      print('Erro ao buscar livros: ${response.statusCode}');
     }
   }
 
@@ -70,38 +80,92 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _logout(BuildContext context) {
-    Provider.of<AuthProvider>(context, listen: false).logout();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+  Widget _buildLivrosGrid() {
+    return GridView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 0.65,
+      ),
+      itemCount: _livros.length,
+      itemBuilder: (context, index) {
+        final livro = _livros[index];
+        Uint8List? imageBytes;
+        try {
+          if (livro['imagem'] != null && livro['imagem']['data'] != null) {
+            imageBytes =
+                Uint8List.fromList(List<int>.from(livro['imagem']['data']));
+          }
+        } catch (e) {
+          print('Erro ao processar imagem: $e');
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 90,
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                image: imageBytes != null
+                    ? DecorationImage(
+                        fit: BoxFit.cover,
+                        image: MemoryImage(imageBytes),
+                      )
+                    : null,
+              ),
+              child: imageBytes == null
+                  ? Icon(Icons.book, size: 50, color: Colors.grey[600])
+                  : null,
+            ),
+            const SizedBox(height: 8),
+            Flexible(
+              child: Text(
+                livro['titulo'] ?? 'Título desconhecido',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Flexible(
+              child: Text(
+                livro['autor'] ?? 'Autor desconhecido',
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              'Ano: ${livro['dataPublicacao'] ?? 'Desconhecido'}',
+              style: TextStyle(fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              livro['disponivel'] == true ? 'Disponível' : 'Indisponível',
+              style: TextStyle(
+                fontSize: 12,
+                color: livro['disponivel'] == true ? Colors.green : Colors.red,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final firstName = authProvider.getFirstName()?.capitalize() ?? 'Usuário';
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor: Colors.blue[800],
-        leading: IconButton(
-          icon: Icon(_isSidebarOpen ? Icons.close : Icons.menu),
-          onPressed: _toggleSidebar,
-          color: Colors.white,
-        ),
-        title: ColorFiltered(
-          colorFilter: const ColorFilter.mode(
-            Colors.white,
-            BlendMode.srcIn,
-          ),
-          child: Image.asset(
-            'assets/logo_unifor.png',
-            height: 40,
-          ),
-        ),
-        centerTitle: true,
+      appBar: NavbarWidget(
+        isSidebarOpen: _isSidebarOpen,
+        toggleSidebar: _toggleSidebar,
       ),
       body: Stack(
         children: [
@@ -111,14 +175,48 @@ class _HomeScreenState extends State<HomeScreen> {
               absorbing: _isSidebarOpen,
               child: Column(
                 children: [
-                  const SizedBox(height: 40),
-                  Text(
-                    'Bem-vindo à Biblioteca Yolanda Queiroz',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 40),
+                          Text(
+                            'Bem-vindo à Biblioteca Yolanda Queiroz',
+                            style: TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Últimos livros adicionados:',
+                            style: TextStyle(fontSize: 18),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          _isLoading
+                              ? CircularProgressIndicator()
+                              : _error.isNotEmpty
+                                  ? Text(_error,
+                                      style: TextStyle(color: Colors.red))
+                                  : _buildLivrosGrid(),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  _buildLivrosList(),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    color: Colors.grey[100],
+                    child: Text(
+                      '© Biblioteca Yolanda Queiroz',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -130,116 +228,11 @@ class _HomeScreenState extends State<HomeScreen> {
               left: 0,
               child: GestureDetector(
                 onTap: () {},
-                child: Container(
-                  width: 250,
-                  color: Colors.blue[800],
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      Text(
-                        'Olá, $firstName',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildSidebarButton('Home', Icons.home, () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                              builder: (context) => const HomeScreen()),
-                        );
-                      }),
-                      _buildSidebarButton('Biblioteca', Icons.book, () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                              builder: (context) => const BibliotecaScreen()),
-                        );
-                      }),
-                      _buildSidebarButton('Chamada', Icons.checklist_rounded,
-                          () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                              builder: (context) => const ChamadaScreen()),
-                        );
-                      }),
-                      _buildSidebarButton('Turmas', Icons.people_outline, () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                              builder: (context) => const TurmasScreen()),
-                        );
-                      }),
-                      _buildSidebarButton('Perfil', Icons.person, () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                              builder: (context) => const PerfilScreen()),
-                        );
-                      }),
-                      Spacer(),
-                      _buildSidebarButton('Sair', Icons.exit_to_app, () {
-                        _logout(context);
-                      }),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
+                child: SidebarWidget(closeSidebar: _closeSidebar),
               ),
             ),
         ],
       ),
-    );
-  }
-
-  Widget _buildLivrosList() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: _livros.map((livro) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              children: [
-                Container(
-                  width: 80,
-                  height: 120,
-                  color: Colors.grey[300],
-                  child: Center(child: Text('Imagem')),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  livro['titulo'],
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  livro['autor'],
-                  style: TextStyle(fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  livro['disponivel'] ? 'Disponível' : 'Indisponível',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: livro['disponivel'] ? Colors.green : Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildSidebarButton(String label, IconData icon, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        label,
-        style: TextStyle(color: Colors.white),
-      ),
-      onTap: onTap,
     );
   }
 }

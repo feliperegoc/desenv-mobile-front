@@ -7,8 +7,11 @@ class AuthService {
   // static const String baseUrl = 'http://192.168.23.6:6543'; // ip Trabalho
 
   static String get baseUrl {
-    String host = Platform.isAndroid ? '10.0.2.2' : 'localhost'; // IP padrão para emuladores Android
-    return 'http://$host:6543';
+    String host = Platform.isAndroid
+        ? '10.0.2.2'
+        : 'localhost'; // IP padrão para emuladores Android
+    // return 'http://$host:6543';
+    return 'http://$host:3000';
   }
 
   static Future<http.Response> login(String email, String password) async {
@@ -31,7 +34,8 @@ class AuthService {
     }
   }
 
-  static Future<http.Response> cadastrar(String nome, String email, String senha) async {
+  static Future<http.Response> cadastrar(
+      String nome, String email, String senha) async {
     final response = await http.post(
       Uri.parse('$baseUrl/api/users'),
       body: jsonEncode({
