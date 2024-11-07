@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../auth_provider.dart';
 import 'login_screen.dart';
 import '../widgets/sidebar_widget.dart';
 import '../widgets/navbar_widget.dart';
+import 'livro_detalhes_screen.dart'; // Adicione esta importação
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -49,12 +49,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final response = await http.get(Uri.parse('$baseUrl/livros'));
+      final response =
+          await http.get(Uri.parse('$baseUrl/livros-teste?limit=2000'));
 
       if (response.statusCode == 200) {
-        final List<dynamic> livros = json.decode(response.body);
+        final List<dynamic> allLivros = json.decode(response.body);
         setState(() {
-          _livros = livros.take(4).toList();
+          // Pega apenas os 4 primeiros livros
+          _livros = allLivros.take(4).toList();
           _isLoading = false;
         });
       } else {
@@ -94,66 +96,63 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: _livros.length,
       itemBuilder: (context, index) {
         final livro = _livros[index];
-        Uint8List? imageBytes;
-        try {
-          if (livro['imagem'] != null && livro['imagem']['data'] != null) {
-            imageBytes =
-                Uint8List.fromList(List<int>.from(livro['imagem']['data']));
-          }
-        } catch (e) {
-          print('Erro ao processar imagem: $e');
-        }
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 90,
-              height: 150,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                image: imageBytes != null
-                    ? DecorationImage(
-                        fit: BoxFit.cover,
-                        image: MemoryImage(imageBytes),
-                      )
-                    : null,
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LivroDetalhesScreen(livroId: livro['id']),
               ),
-              child: imageBytes == null
-                  ? Icon(Icons.book, size: 50, color: Colors.grey[600])
-                  : null,
-            ),
-            const SizedBox(height: 8),
-            Flexible(
-              child: Text(
-                livro['titulo'] ?? 'Título desconhecido',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 120,
+                height: 180,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage('assets/logo_livros.jpeg'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: Text(
+                  livro['titulo'] ?? 'Título desconhecido',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  livro['autor'] ?? 'Autor desconhecido',
+                  style: TextStyle(fontSize: 14),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Text(
+                'Ano: ${livro['dataPublicacao'] ?? 'Desconhecido'}',
+                style: TextStyle(fontSize: 12),
                 textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Flexible(
-              child: Text(
-                livro['autor'] ?? 'Autor desconhecido',
-                style: TextStyle(fontSize: 14),
+              Text(
+                livro['disponivel'] == true ? 'Disponível' : 'Indisponível',
+                style: TextStyle(
+                  fontSize: 12,
+                  color:
+                      livro['disponivel'] == true ? Colors.green : Colors.red,
+                ),
                 textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Text(
-              'Ano: ${livro['dataPublicacao'] ?? 'Desconhecido'}',
-              style: TextStyle(fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              livro['disponivel'] == true ? 'Disponível' : 'Indisponível',
-              style: TextStyle(
-                fontSize: 12,
-                color: livro['disponivel'] == true ? Colors.green : Colors.red,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
