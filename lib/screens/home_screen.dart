@@ -49,8 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final response =
-          await http.get(Uri.parse('$baseUrl/livros-teste?limit=2000'));
+      final response = await http.get(Uri.parse('$baseUrl/livros?limit=2000'));
 
       if (response.statusCode == 200) {
         final List<dynamic> allLivros = json.decode(response.body);
@@ -138,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Text(
-                'Ano: ${livro['dataPublicacao'] ?? 'Desconhecido'}',
+                'Ano: ${livro['ano'] ?? 'Desconhecido'}',
                 style: TextStyle(fontSize: 12),
                 textAlign: TextAlign.center,
               ),

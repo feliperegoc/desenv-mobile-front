@@ -33,7 +33,7 @@ class _BibliotecaScreenState extends State<BibliotecaScreen> {
   final int _limit = 10;
   String _searchQuery = '';
   Set<String> _selectedAuthors = {};
-  List<String> _availableAuthors = []; // Adicione aqui
+  List<String> _availableAuthors = [];
   String _authorSearchQuery = '';
   List<String> _filteredAuthors = [];
   DisponibilidadeFilter _disponibilidadeFilter = DisponibilidadeFilter.todos;
@@ -68,7 +68,7 @@ class _BibliotecaScreenState extends State<BibliotecaScreen> {
 
     try {
       final totalResponse =
-          await http.get(Uri.parse('$baseUrl/livros-teste?limit=2000'));
+          await http.get(Uri.parse('$baseUrl/livros?limit=2000'));
 
       if (totalResponse.statusCode == 200) {
         final List<dynamic> allData = json.decode(totalResponse.body);
@@ -107,14 +107,13 @@ class _BibliotecaScreenState extends State<BibliotecaScreen> {
         }
 
         // Aplica ordenação por ano (comentado para implementação futura)
-        /*
-      _livrosFiltrados.sort((a, b) {
-        if (a['ano'] == null) return 1;
-        if (b['ano'] == null) return -1;
-        int comparison = a['ano'].compareTo(b['ano']);
-        return _sortOrder == 'ASC' ? comparison : -comparison;
-      });
-      */
+
+        _livrosFiltrados.sort((a, b) {
+          if (a['ano'] == null) return 1;
+          if (b['ano'] == null) return -1;
+          int comparison = a['ano'].compareTo(b['ano']);
+          return _sortOrder == 'ASC' ? comparison : -comparison;
+        });
 
         // Calcula o total de páginas baseado nos livros filtrados
         _totalPages = (_livrosFiltrados.length / _limit).ceil();
@@ -524,7 +523,7 @@ class _BibliotecaScreenState extends State<BibliotecaScreen> {
                   ),
                 ),
                 Text(
-                  'Ano: ${livro['dataPublicacao'] ?? 'Desconhecido'}',
+                  'Ano: ${livro['ano'] ?? 'Desconhecido'}',
                   style: TextStyle(fontSize: 12),
                   textAlign: TextAlign.center,
                 ),

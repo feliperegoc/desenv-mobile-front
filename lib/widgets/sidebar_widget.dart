@@ -20,6 +20,37 @@ class SidebarWidget extends StatelessWidget {
     );
   }
 
+  Future<void> _showLogoutConfirmation(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Confirmação'),
+          content: Text('Tem certeza que deseja sair?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Não'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: Text(
+                'Sim',
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Close the dialog
+                _logout(context); // Proceed with logout
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _logout(BuildContext context) {
     Provider.of<AuthProvider>(context, listen: false).logout();
     Navigator.of(context).pushReplacement(
@@ -66,8 +97,8 @@ class SidebarWidget extends StatelessWidget {
           _buildSidebarButton('Perfil', Icons.person,
               () => _navigateTo(context, PerfilScreen())),
           Spacer(),
-          _buildSidebarButton(
-              'Sair', Icons.exit_to_app, () => _logout(context)),
+          _buildSidebarButton('Sair', Icons.exit_to_app,
+              () => _showLogoutConfirmation(context)),
           const SizedBox(height: 20),
         ],
       ),
