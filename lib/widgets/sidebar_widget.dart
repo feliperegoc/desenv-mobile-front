@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../auth_provider.dart';
 import '../screens/home_screen.dart';
 import '../screens/biblioteca.dart';
-import '../screens/chamada.dart';
+import '../screens/historico_screen.dart';
 import '../screens/turmas.dart';
 import '../screens/perfil.dart';
 import '../screens/login_screen.dart';
@@ -90,10 +90,10 @@ class SidebarWidget extends StatelessWidget {
               'Home', Icons.home, () => _navigateTo(context, HomeScreen())),
           _buildSidebarButton('Biblioteca', Icons.book,
               () => _navigateTo(context, BibliotecaScreen())),
-          _buildSidebarButton('Chamada', Icons.checklist_rounded,
-              () => _navigateTo(context, ChamadaScreen())),
-          _buildSidebarButton('Turmas', Icons.people_outline,
-              () => _navigateTo(context, TurmasScreen())),
+          _buildSidebarButton('Histórico', Icons.checklist_rounded,
+              () => _navigateTo(context, HistoricoScreen())),
+          // _buildSidebarButton('Turmas', Icons.people_outline,
+          //     () => _navigateTo(context, TurmasScreen())),
           _buildSidebarButton('Perfil', Icons.person,
               () => _navigateTo(context, PerfilScreen())),
           Spacer(),
