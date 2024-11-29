@@ -14,7 +14,7 @@ class PerfilScreen extends StatefulWidget {
 
 class _PerfilScreenState extends State<PerfilScreen> {
   bool _isSidebarOpen = false;
-  bool _isEditing = false; // Define se está no modo de edição ou visualização
+  bool _isEditing = false;
   TextEditingController _nomeController = TextEditingController();
   TextEditingController _sobrenomeController = TextEditingController();
   TextEditingController _dataNascimentoController = TextEditingController();
@@ -30,7 +30,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
         );
       }
     });
-    // Inicializando os controladores com valores padrões
     _nomeController.text = 'Nome do Usuário';
     _sobrenomeController.text = 'Sobrenome do Usuário';
     _dataNascimentoController.text = '01/01/2000';
@@ -86,9 +85,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                         children: [
                           const SizedBox(height: 40), // Espaçamento no topo
                           GestureDetector(
-                            onTap: () {
-                              // Implementar função de alterar foto futuramente
-                            },
+                            onTap: () {},
                             child: CircleAvatar(
                               radius: 60,
                               backgroundColor: Colors.grey[300],
@@ -99,9 +96,7 @@ class _PerfilScreenState extends State<PerfilScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(
-                              height:
-                                  20), // Espaçamento entre o ícone e os dados
+                          const SizedBox(height: 20),
                           _buildTextField('Nome', _nomeController, _isEditing),
                           const SizedBox(height: 10),
                           _buildTextField(
@@ -118,7 +113,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
                       ),
                     ),
                   ),
-                  // Spacer(), // Espaço invisível até o final da tela
                 ],
               ),
             ),
@@ -135,15 +129,13 @@ class _PerfilScreenState extends State<PerfilScreen> {
     );
   }
 
-  // Função para criar os campos de texto
   Widget _buildTextField(
       String label, TextEditingController controller, bool isEditing) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
       child: TextField(
         controller: controller,
-        enabled:
-            isEditing, // Desativa o input quando não está no modo de edição
+        enabled: isEditing,
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(),

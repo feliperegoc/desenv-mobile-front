@@ -76,7 +76,6 @@ class _LivroDetalhesScreenState extends State<LivroDetalhesScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> emprestimos = json.decode(response.body);
 
-        // Procura um empréstimo que corresponda aos critérios
         final currentEmprestimo = emprestimos.firstWhere(
           (emp) =>
               emp['usuarioId'] == _userId &&
@@ -135,7 +134,6 @@ class _LivroDetalhesScreenState extends State<LivroDetalhesScreen> {
       if (response.statusCode == 201) {
         final bool wasLocated = _isLocated;
 
-        // Atualiza os dados
         await Future.wait([
           _fetchLivroDetalhes(),
           _checkEmprestimoStatus(),

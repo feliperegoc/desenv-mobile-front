@@ -33,7 +33,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
       if (!mounted) return;
 
       if (emailCadastrado) {
-        // Exibir tela de "Email já cadastrado"
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -51,7 +50,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
         final response = await AuthService.cadastrar(nome, email, senha);
 
         if (response.statusCode == 201) {
-          // Exibir tela de "Usuário criado com sucesso"
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -73,7 +71,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
             ),
           );
         } else {
-          // Exibir tela de erro genérico
           showDialog(
             context: context,
             builder: (context) => AlertDialog(

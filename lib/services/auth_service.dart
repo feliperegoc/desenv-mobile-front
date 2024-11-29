@@ -1,16 +1,12 @@
-import 'dart:io'; // Adicionado para detectar a plataforma
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class AuthService {
-  // static const String baseUrl = 'http://localhost:6543';
-  // static const String baseUrl = 'http://192.168.23.6:6543'; // ip Trabalho
-
   static String get baseUrl {
     String host = Platform.isAndroid
         ? '10.0.2.2'
         : 'localhost'; // IP padrão para emuladores Android
-    // return 'http://$host:6543';
     return 'http://$host:3000';
   }
 

@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
 
       if (response.statusCode == 200) {
-        // Login bem-sucedido
         bool loginSuccess =
             await Provider.of<AuthProvider>(context, listen: false)
                 .login(email, password);

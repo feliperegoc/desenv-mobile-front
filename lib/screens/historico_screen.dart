@@ -85,7 +85,6 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
     });
 
     try {
-      // Fetch both active and historical loans
       final activeResponse = await http.get(Uri.parse('$baseUrl/emprestimos'));
       final historyResponse =
           await http.get(Uri.parse('$baseUrl/emprestimos/historico'));
@@ -97,11 +96,9 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
         final List<dynamic> historyEmprestimos =
             json.decode(historyResponse.body);
 
-        // Get complete loan information by combining both APIs
         final allEmprestimos = historyEmprestimos
             .where((emp) => emp['usuarioNome'] == _userName)
             .map((emp) {
-          // Find corresponding active loan to get livroId if available
           final activeLoan = activeEmprestimos.firstWhere(
             (active) => active['id'] == emp['id'],
             orElse: () => null,
@@ -118,7 +115,6 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
           };
         }).toList();
 
-        // Sort: active loans first, then by date
         allEmprestimos.sort((a, b) {
           if (a['dataDevolucao'] == null && b['dataDevolucao'] != null)
             return -1;
@@ -154,7 +150,6 @@ class _HistoricoScreenState extends State<HistoricoScreen> {
   }
 
   void _navigateToLivroDetalhes(String titulo) {
-    // Encontra o empréstimo ativo correspondente ao título
     final activeEmprestimo = _emprestimos.firstWhere(
       (emp) => emp['livroTitulo'] == titulo && emp['dataDevolucao'] == null,
       orElse: () => {},

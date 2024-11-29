@@ -106,8 +106,7 @@ class _BibliotecaScreenState extends State<BibliotecaScreen> {
           }).toList();
         }
 
-        // Aplica ordenação por ano (comentado para implementação futura)
-
+        // Aplica ordenação por ano
         _livrosFiltrados.sort((a, b) {
           if (a['ano'] == null) return 1;
           if (b['ano'] == null) return -1;
